@@ -89,13 +89,13 @@ def github_delete_repo(repo):
     #print('\n' + str(response.content))
     assert response.status_code == 204
 
-REPO = 'test4'
-BRANCH = 'testBranch'
-test_github_response()
-github_create_repo(REPO)
-github_list_branches(REPO)
-sha = github_get_sha(REPO)
-github_create_branch(BRANCH)
-github_commit_file(BRANCH)
-github_create_pull_request()
+REPO = 'git_flow_first_task'
+BRANCH = 'feature/git_flow_feature'
+# test_github_response()
+# github_create_repo(REPO)
+# github_list_branches(REPO)
+# sha = github_get_sha(REPO)
+# github_create_branch(BRANCH)
+# github_commit_file(BRANCH)
+# github_create_pull_request()
 github_delete_repo(REPO)
