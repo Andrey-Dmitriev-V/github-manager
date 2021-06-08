@@ -2,8 +2,6 @@ from pytest_bdd import scenario, given, when, then, parsers
 from pytest_bdd import scenarios
 import requests, base64, pytest
 
-from requests.models import Response
-
 GUTHUB_API = 'https://api.github.com'
 
 # Below 2 auth are not valid anymore and to be updated as per current user
@@ -14,14 +12,6 @@ HEADERS = {'Authorization': 'token ' + TOKEN}
 
 scenarios('../features/pull_request.feature')
 
-# @scenario('pull_request.feature', 'Basic pull request')
-# def test_pull_request():
-#     pass
-
-@pytest.fixture()
-def context():
-    return {}
-
 def github_get_sha(repo, branch_mame):
     response = requests.get(GUTHUB_API + '/repos/' + USER + '/' + repo +'/branches')
     assert response.status_code == 200
@@ -29,6 +19,10 @@ def github_get_sha(repo, branch_mame):
         if item['name'] == branch_mame:
             sha = item['commit'].get('sha')
     return sha    
+
+def github_delete_repo(repo):
+    response = requests.delete(GUTHUB_API + '/repos/' + USER + '/' + repo, headers=HEADERS)
+    assert response.status_code == 204
 
 @given("user logs in to GitHub using basic authentication")
 def github_response():
@@ -45,13 +39,13 @@ def github_response():
     assert response.status_code == 200
 
 @when(parsers.parse('user creates repository with name "{repo}"'))
-def github_create_repo_response(repo, context):
+def github_create_repo_response(repo):
     body = {'name': repo, 'auto_init': True}
     response = requests.post(GUTHUB_API + '/user/repos', headers=HEADERS, json = body)
     assert response.status_code == 201
 
 @when(parsers.parse('user creates branch "{branch}"'))
-def github_create_branch(repo, branch, context):
+def github_create_branch(repo, branch):
     sha = github_get_sha(repo,'main')
     body = { 'ref': 'refs/heads/' + branch, 'sha': sha}
     response = requests.post(GUTHUB_API + '/repos/' + USER + '/' + repo +'/git/refs', headers=HEADERS, json = body)
@@ -68,9 +62,8 @@ def github_commit_branch(repo,branch):
     assert response.status_code == 201
 
 @then('user creates pull request to main branch')
-def github_create_pull_request(repo,branch):
+def github_create_pull_request(repo, branch):
     body = { 'title':'New pull request','head': branch, 'base': 'main'}
     response = requests.post(GUTHUB_API + '/repos/' + USER + '/' + repo +'/pulls', headers=HEADERS, json = body)
     assert response.status_code == 201
-    response = requests.delete(GUTHUB_API + '/repos/' + USER + '/' + repo, headers=HEADERS)
-    assert response.status_code == 204
+    github_delete_repo(repo)

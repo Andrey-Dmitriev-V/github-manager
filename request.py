@@ -1,5 +1,3 @@
-from pytest_bdd import given, when, then, parsers
-from pytest_bdd import scenarios
 import requests
 import base64
 
@@ -46,6 +44,7 @@ def github_get_sha(repo):
 # https://github.community/t/github-api-to-create-a-branch/14216
 def github_create_branch(branch):
     print('user creates branch ' + branch)
+    sha = github_get_sha(REPO)
     body = { 'ref': 'refs/heads/' + branch, 'sha': sha}
     # POST /repos/:owner/:repo/git/refs
     response = requests.post(GUTHUB_API + '/repos/' + USER + '/' + REPO +'/git/refs', headers=HEADERS, json = body)
@@ -91,11 +90,10 @@ def github_delete_repo(repo):
 
 REPO = 'git_flow_first_task'
 BRANCH = 'feature/git_flow_feature'
-# test_github_response()
-# github_create_repo(REPO)
-# github_list_branches(REPO)
-# sha = github_get_sha(REPO)
-# github_create_branch(BRANCH)
-# github_commit_file(BRANCH)
-# github_create_pull_request()
+test_github_response()
+github_create_repo(REPO)
+github_list_branches(REPO)
+github_create_branch(BRANCH)
+github_commit_file(BRANCH)
+github_create_pull_request()
 github_delete_repo(REPO)
